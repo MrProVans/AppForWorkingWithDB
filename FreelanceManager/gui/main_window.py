@@ -1,6 +1,5 @@
 import psycopg2
 from PyQt5.QtWidgets import QMainWindow, QTabWidget, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton
-from PyQt5.QtCore import Qt
 
 
 class MainWindow(QMainWindow):
