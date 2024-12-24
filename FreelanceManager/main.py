@@ -106,12 +106,23 @@ class MainWindow(QMainWindow):
         print("Database created successfully.")
 
     def delete_database(self):
-        self.db.execute_procedure('delete_database')
-        print("Database deleted successfully.")
+        try:
+            self.db.execute_procedure('clear_all_tables')
+            print("Database cleared successfully.")
+        except Exception as e:
+            print(f"Error clearing database: {e}")
 
     def load_table_data(self):
         table_name = 'clients'  # Здесь можно выбрать нужную таблицу
         data = self.db.fetch_table(table_name)
+
+        if not data:  # Проверяем, есть ли данные в таблице
+            print(f"Table '{table_name}' is empty.")
+            self.tableWidget.clear()  # Очищаем таблицу в GUI
+            self.tableWidget.setRowCount(0)  # Устанавливаем нулевое количество строк
+            self.tableWidget.setColumnCount(0)  # Устанавливаем нулевое количество столбцов
+            return
+
         self.display_table_data(data)
 
     def clear_table(self):
@@ -120,10 +131,21 @@ class MainWindow(QMainWindow):
         print(f"Table {table_name} cleared.")
 
     def add_data(self):
-        # Собираем данные из полей для добавления
         data = self.inputField.text().split(',')
-        self.db.execute_procedure('add_client_proc', *data)
-        print("Data added successfully.")
+
+        if len(data) < 3:
+            print("Invalid input. Please enter data in the format: Name,Email,Phone[,Company]")
+            return
+
+        # Добавляем значение для компании, если оно отсутствует
+        while len(data) < 4:
+            data.append("Unknown")
+
+        try:
+            self.db.execute_procedure('add_client_proc', *data)
+            print("Data added successfully.")
+        except Exception as e:
+            print(f"Error adding data: {e}")
 
     def update_data(self):
         # Тут нужно реализовать логику для обновления данных
